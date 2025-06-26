@@ -1,4 +1,9 @@
-#include "logger.c"
+#ifndef LOGGER_H
+#define LOGGER_H
 
-void errorLog ();
-void infoLog ();
+#include <stdarg.h>
+
+void errorLog(const char *format, ...);
+void infoLog(const char *format, ...);
+
+#endif

@@ -1,0 +1,18 @@
+CC = gcc
+CFLAGS = -Wall -Wextra
+SRC = main.c socket/socket.c utils/logger.c
+OBJ = $(SRC:.c=.o)
+TARGET = main
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f *.o socket/*.o utils/*.o $(TARGET)
+
+.PHONY: all clean

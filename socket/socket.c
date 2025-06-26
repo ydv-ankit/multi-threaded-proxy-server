@@ -1,5 +1,6 @@
-#include "utils/logger.h"
+#include "../utils/logger.h"
 #include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +10,7 @@
 #define MAX_CONN 10
 
 void initializeSocket(int);
-void handleConnection(int, struct sockaddr *, socklen_t *);
+// void handleConnection(int, struct sockaddr *, socklen_t *);
 
 void initializeSocket(int port) {
   // socket file descriptor
@@ -40,11 +41,17 @@ void initializeSocket(int port) {
   }
   infoLog("ready to accept connections...");
 
-  // listen for incoming connection requests
+  // continuously listen for incoming connection requests
   while (1) {
-    struct sockaddr *client_addr;
-    socklen_t *client_addr_len = NULL;
-    int conn_fd = accept(sock_fd, client_addr, client_addr_len);
-    handleConnection(conn_fd, client_addr, client_addr_len);
+    struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+    int conn_fd =
+        accept(sock_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+    if (conn_fd == -1) {
+      errorLog("error accepting connection request from client");
+      continue;
+    }
+    infoLog("got client connection: %d", conn_fd);
+    // handleConnection(conn_fd, client_addr, client_addr_len);
   }
 }
