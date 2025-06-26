@@ -1,5 +1,7 @@
 #include "../utils/logger.h"
+#include "conn.h"
 #include <netinet/in.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,10 +9,14 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#define MAX_CONN 10
+#define MAX_CONN 10 // max connections in pending queue
 
-void initializeSocket(int);
-// void handleConnection(int, struct sockaddr *, socklen_t *);
+void *useThread(void *arg) {
+  int client_fd = *(int *)arg;
+  handleClient(client_fd);
+  free(arg);
+  return NULL;
+}
 
 void initializeSocket(int port) {
   // socket file descriptor
@@ -52,6 +58,14 @@ void initializeSocket(int port) {
       continue;
     }
     infoLog("got client connection: %d", conn_fd);
-    // handleConnection(conn_fd, client_addr, client_addr_len);
+    pthread_t thread;
+    int *client_fd = malloc(sizeof(int));
+    *client_fd = conn_fd;
+    int p = pthread_create(&thread, NULL, &useThread, client_fd);
+    if (p != 0) {
+      errorLog("cannot handle client %d connection request", conn_fd);
+      continue;
+    }
+    pthread_detach(thread);
   }
 }
