@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
-SRC = main.c socket/socket.c utils/logger.c
+SRC = main.c socket/socket.c socket/conn.c utils/logger.c
 OBJ = $(SRC:.c=.o)
 TARGET = main
 
