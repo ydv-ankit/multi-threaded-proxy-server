@@ -11,8 +11,7 @@ This project demonstrates fundamental concepts of network programming in C, incl
 ```
 multi-threaded-proxy-server/
 ├── main.c          # Main program entry point
-├── socket.c        # Socket creation and management functions
-├── main            # Compiled executable
+├── socket.c        # Socket management functions
 └── README.md       # This file
 ```
 
@@ -20,9 +19,9 @@ multi-threaded-proxy-server/
 
 - **Socket Creation**: Basic TCP socket creation with error handling
 - **Socket Binding**: Binding socket to specified port using `sockaddr_in` structure
-- **Network Byte Order**: Proper use of `htons()` for port conversion
-- **Error Handling**: Basic error checking for socket operations
-- **Modular Design**: Separated socket logic into `socket.c` file
+- **Network Byte Order**: Proper use of `htons()` _(host to network short)_ for port conversion
+- **Error Handling**: Basic error checking
+- **Modular Design**: Separated operations logic
 
 ## Building the Project
 
