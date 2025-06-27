@@ -1,11 +1,12 @@
 #include "../utils/logger.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 
 #define BUFFER_SIZE 1024 * 512 // 512 KB
 
 void handleClient(int c_fd) {
-  char buffer[BUFFER_SIZE];
+  char *buffer = (char *)malloc(BUFFER_SIZE);
   while (1) {
     int bytes_read = recv(c_fd, buffer, sizeof(buffer), 0);
     infoLog("bytes: %d", bytes_read);
