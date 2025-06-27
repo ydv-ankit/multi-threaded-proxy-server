@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #define MAX_CONN 10 // max connections in pending queue
 
@@ -23,6 +24,14 @@ void initializeSocket(int port) {
   int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (sock_fd == -1) {
     errorLog("failed to initialize socket");
+    exit(1);
+  }
+
+  // set socket options to allow address reuse
+  int opt = 1;
+  if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    errorLog("failed to set socket options");
+    close(sock_fd);
     exit(1);
   }
 
