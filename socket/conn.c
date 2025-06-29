@@ -1,3 +1,5 @@
+#include "../proxy/proxy.h"
+#include "../utils/helper.h"
 #include "../utils/logger.h"
 #include "../utils/parser.h"
 #include <stddef.h>
@@ -5,25 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-
-#define BUFFER_SIZE 1024 * 64 // 64 KB
-
-struct ClientData {
-  int client_fd;
-  char *buffer;
-  size_t current_size;
-  size_t capacity;
-  int is_complete;
-};
-
-void *expandMemory(void *ptr, int exp_size) {
-  void *tmp = (void *)realloc(ptr, exp_size);
-  if (tmp == NULL) {
-    errorLog("error while memory expansion");
-    return ptr;
-  }
-  return tmp;
-}
+#include <unistd.h>
 
 void handleClient(int c_fd) {
   char *buffer = (char *)malloc(BUFFER_SIZE);
@@ -85,7 +69,20 @@ void handleClient(int c_fd) {
 
       if (is_complete) {
         infoLog("Complete HTTP request received!");
-        parseRequest(buffer, curr_ptr);
+        struct parsed_request *parsed = parseRequest(buffer, curr_ptr);
+        if (parsed != NULL) {
+          // Use parsed data for proxy forwarding
+          char *resp_buff = (char *)malloc(BUFFER_SIZE);
+          size_t resp_len = 0;
+          forwardRequest((struct parsed_request *)parsed, buffer, curr_ptr,
+                         resp_buff, &resp_len);
+          // send response back to client
+          send(c_fd, resp_buff, resp_len, 0);
+          // Free memory when done
+          free(resp_buff);
+          free(parsed);
+          break;
+        }
         curr_ptr = 0;
         buffer[0] = '\0';
       }
@@ -94,4 +91,5 @@ void handleClient(int c_fd) {
     }
   }
   free(buffer);
+  close(c_fd);
 }
