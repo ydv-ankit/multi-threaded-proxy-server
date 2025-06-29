@@ -1,21 +1,10 @@
+#include "parser.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct client {
-  char *host;
-  char *http_ver;
-  char *method;
-};
-
-struct header {
-  char *key;
-  char *value;
-  struct header *next_header;
-};
-
-void parseRequest(char *buff, size_t tsize) {
+struct parsed_request *parseRequest(char *buff, size_t tsize) {
   printf("Parsing HTTP request...\n\n");
 
   // method
@@ -101,11 +90,26 @@ void parseRequest(char *buff, size_t tsize) {
   }
 
   // Body
+  char *body = &buff[t_count];
   if (t_count < tsize) {
-    char *body = &buff[t_count];
     body[tsize - t_count] = '\0';
     printf("Body: %s\n", body);
   }
 
+  struct parsed_request *parsed =
+      (struct parsed_request *)malloc(sizeof(struct parsed_request));
+  if (!parsed) {
+    fprintf(stderr, "Parsed request allocation failed\n");
+    return NULL;
+  }
+
+  parsed->method = method;
+  parsed->path = path;
+  parsed->http_version = http_ver;
+  parsed->headers = headers;
+  parsed->body = (t_count < tsize) ? body : NULL;
+  parsed->body_size = tsize - t_count;
   printf("Parsing complete!\n");
+
+  return parsed;
 }
