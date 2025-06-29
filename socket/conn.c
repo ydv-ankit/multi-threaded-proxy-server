@@ -61,12 +61,6 @@ void handleClient(int c_fd) {
         }
       }
 
-      printf("client [%d]: %s\n", c_fd, buffer);
-      printf("Headers end found: %s\n", headers_end ? "YES" : "NO");
-      printf("Content-Length: %d\n", content_length);
-      printf("Current size: %zu, Complete: %s\n", curr_ptr,
-             is_complete ? "YES" : "NO");
-
       if (is_complete) {
         infoLog("Complete HTTP request received!");
         struct parsed_request *parsed = parseRequest(buffer, curr_ptr);
@@ -77,7 +71,9 @@ void handleClient(int c_fd) {
           forwardRequest((struct parsed_request *)parsed, buffer, curr_ptr,
                          resp_buff, &resp_len);
           // send response back to client
+          printf("sending response\n");
           send(c_fd, resp_buff, resp_len, 0);
+          printf("response sent\n");
           // Free memory when done
           free(resp_buff);
           free(parsed);
@@ -92,4 +88,5 @@ void handleClient(int c_fd) {
   }
   free(buffer);
   close(c_fd);
+  printf("connection closed\n");
 }
